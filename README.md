@@ -12,6 +12,7 @@ Usage:
     python3 main.py
 
 Other files:
+
     doc_preprocessor.py: Loads text data from a csv files. Cleans and preprocesses the documents.
     
     vectorize_doc.py: vecotrizes(tfidf) the preprocessed documents.
