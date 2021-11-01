@@ -46,7 +46,7 @@ def main():
     now = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     # Load  data
-    path = "/Users/faizakhankhattak/Documents/hack/veri_code/topic_models/"
+    path = " " 
     file_name = "dummy_data.csv"
     text_df = pd.read_csv(path + file_name)
     documents = text_df.text.tolist()
