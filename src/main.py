@@ -1,4 +1,10 @@
-import sys
+"""
+    File name: main.py
+    Author: Faiza Khan Khattak
+"""
+
+# import sys
+# sys.path.append(".")
 import string
 from datetime import datetime
 from nltk.corpus import stopwords
@@ -9,19 +15,26 @@ from topic_model import TopicModels
 from visualization import TopicVisulaization
 
 
-sys.path.append(".")
-
-
 def main():
     """
     Loads data
     Cleans data
     Creates topic using topic modelling
-    Stores the results in a csv
+    Stores topic numbers and topic words in a csv
     Creates word clouds for each topic and saves them
+
+        stop_word_list: list of words to be removed from the text (list)
+        punctuation_list: list of punctuation to be removed from the text (list)
+        min_token_len: min acceptable length of the tokens (int)
+        nums_topics: Number of topics (int)
+        topic_word_display: Number of words to be displayed for each topic (int)
+        max_features: number of top tfidf features to be selected (int)
+        tfidf_category: category for tfidf i.e., 'word', 'ngram', or 'char' (str)
+        tfidf_max_word_freq: token max frequency (float)
+        tfidf_min_word_freq: token min frequency (float)
     """
-    STOP_LIST = stopwords.words("english")
-    PUNCT = set(string.punctuation)
+    stop_word_list = stopwords.words("english")
+    punctuation_list = set(string.punctuation)
     min_token_len = 3
     nums_topics = 2
     topic_word_display = 3
@@ -31,39 +44,34 @@ def main():
     tfidf_min_word_freq = 0.1
 
     now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    # Load  data
     path = "/Users/faizakhankhattak/Documents/hack/veri_code/topic_models/"
-
-    documents = [
-        "This is a test of nerves for those who have done amazing things.",
-        "Never hide and never be intimidated",
-    ]
-    # documents1 = docs_preprocessor.tokenize_doc(documents)
-    # print(documents1)
-
-    # print(docs_preprocessor.clean_doc((documents1), 2, punct_list = PUNCT, stop_list=STOP_LIST))
-    documents1 = DocsPreprocessor.cleaning_pipeline(
+    file_name = "dummy_data.csv"
+    text_df = pd.read_csv(path + file_name)
+    documents = text_df.text.tolist()
+    processed_documents = DocsPreprocessor.cleaning_pipeline(
         documents,
         min_token_len,
-        punct_list=PUNCT,
-        stop_list=STOP_LIST,
+        punct_list=punctuation_list,
+        stop_list=stop_word_list,
         lemmatized=True,
         stemmed=False,
     )
 
-    doct, features = VectorizeDoc.tf_converter(
-        documents1,
+    # Vectorize data
+    doc_tf, features = VectorizeDoc.tf_converter(
+        processed_documents,
         tfidf_category,
         max_features,
         tfidf_max_word_freq,
         tfidf_min_word_freq,
     )
-    print(doct)
-    print("features", features)
 
+    # Topic modelling
     topic_words = TopicModels.topic_modelling(
-        doct, features, "lda", nums_topics, topic_word_display
+        doc_tf, features, "lda", nums_topics, topic_word_display
     )
-    print(type(topic_words), topic_words)
 
     topic_df = pd.DataFrame(
         {
@@ -71,12 +79,13 @@ def main():
             "Topic_words": list(topic_words.values()),
         }
     )
-    print(topic_df)
 
+    # Save topic modelling results
     topic_df.to_csv(
         path + "predicted_" + str(nums_topics) + "_topics_" + str(now) + ".csv"
     )
 
+    # Word clouds
     for i, j in topic_words.items():
         print("Saving word cloud for topic", i, ".......")
         TopicVisulaization.word_cloud(j).to_file(
